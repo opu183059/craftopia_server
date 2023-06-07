@@ -39,7 +39,7 @@ async function run() {
     // const bookingsCollection = client.db('aircncDb').collection('bookings')
 // learning end 
 
-    // Save user email and role in DB
+    // Save user
     app.put('/users/:email', async (req, res) => {
         const email = req.params.email
         const user = req.body
@@ -61,6 +61,13 @@ async function run() {
         res.json(result);
       });
 
+// Delete user 
+app.delete("/deleteUsers/:email", async (req, res) => {
+  const email = req.params.email;
+  const query = { email: email };
+  const result = await UsersData.deleteOne(query);
+  res.json(result);
+});
 
 
 
