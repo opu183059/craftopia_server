@@ -39,7 +39,7 @@ async function run() {
     // const bookingsCollection = client.db('aircncDb').collection('bookings')
     // learning end
 
-    // Save user
+    // get user and update
     app.put("/users/:email", async (req, res) => {
       const email = req.params.email;
       const user = req.body;
@@ -58,10 +58,25 @@ async function run() {
       const result = await UsersData.find({}).toArray();
       res.json(result);
     });
+
     // Get all Classes
     app.get("/allClasses", async (req, res) => {
       const result = await ClassCollection.find({}).toArray();
       res.json(result);
+    });
+
+    //get class by id and update
+    app.put("/classApprove/:id", async (req, res) => {
+      const id = req.params.id;
+      console.log(id);
+      const user = req.body;
+      const query = { _id: new ObjectId(id) };
+      const options = { upsert: true };
+      const updateDoc = {
+        $set: user,
+      };
+      const result = await ClassCollection.updateOne(query, updateDoc, options);
+      res.send(result);
     });
 
     // Delete user
