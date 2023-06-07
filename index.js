@@ -85,6 +85,16 @@ async function run() {
       res.json(result);
     });
 
+    // get instructors data my email
+    app.get("/myClass/:email", async (req, res) => {
+      const result = await ClassCollection.find({
+        instructoremail: req.params.email,
+      })
+        .sort({ createdAt: -1 })
+        .toArray();
+      res.json(result);
+    });
+
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
     console.log(
