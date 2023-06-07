@@ -10,7 +10,7 @@ const port = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json());
 
-console.log(process.env.USER_PASS);
+// console.log(process.env.USER_PASS);
 
 const uri = `mongodb+srv://${process.env.USER_NAME}:${process.env.USER_PASS}@cluster0.ljsyrma.mongodb.net/?retryWrites=true&w=majority`;
 
@@ -32,9 +32,34 @@ async function run() {
     const ClassCollection = client.db('criftopia').collection('class')
     const ClassBooking = client.db('criftopia').collection('bookings')
 
+// for learning 
+// const toyDb = client.db("toyDb").collection("toy");
+    // const usersCollection = client.db('aircncDb').collection('users')
+    // const roomsCollection = client.db('aircncDb').collection('rooms')
+    // const bookingsCollection = client.db('aircncDb').collection('bookings')
+// learning end 
 
+    // Save user email and role in DB
+    app.put('/users/:email', async (req, res) => {
+        const email = req.params.email
+        const user = req.body
+        const query = { email: email }
+        const options = { upsert: true }
+        const updateDoc = {
+          $set: user,
+        }
+        const result = await UsersData.updateOne(query, updateDoc, options)
+        // console.log(result)
+        res.send(result)
+      })
 
-
+      // Get all user 
+      app.get("/allusers", async (req, res) => {
+        const result = await UsersData
+          .find({})
+          .toArray();
+        res.json(result);
+      });
 
 
 
