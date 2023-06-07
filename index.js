@@ -58,6 +58,11 @@ async function run() {
       const result = await UsersData.find({}).toArray();
       res.json(result);
     });
+    // Get all Classes
+    app.get("/allClasses", async (req, res) => {
+      const result = await ClassCollection.find({}).toArray();
+      res.json(result);
+    });
 
     // Delete user
     app.delete("/deleteUsers/:email", async (req, res) => {
