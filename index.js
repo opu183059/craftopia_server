@@ -1,5 +1,3 @@
-// craftopia
-// jCxDazOvTvBSQ2uH
 const express = require("express");
 const cors = require("cors");
 require("dotenv").config();
@@ -9,8 +7,6 @@ const port = process.env.PORT || 5000;
 
 app.use(cors());
 app.use(express.json());
-
-// console.log(process.env.USER_PASS);
 
 const uri = `mongodb+srv://${process.env.USER_NAME}:${process.env.USER_PASS}@cluster0.ljsyrma.mongodb.net/?retryWrites=true&w=majority`;
 
@@ -31,13 +27,6 @@ async function run() {
     const UsersData = client.db("criftopia").collection("users");
     const ClassCollection = client.db("criftopia").collection("class");
     const ClassBooking = client.db("criftopia").collection("bookings");
-
-    // for learning
-    // const toyDb = client.db("toyDb").collection("toy");
-    // const usersCollection = client.db('aircncDb').collection('users')
-    // const roomsCollection = client.db('aircncDb').collection('rooms')
-    // const bookingsCollection = client.db('aircncDb').collection('bookings')
-    // learning end
 
     // get user and update
     app.put("/users/:email", async (req, res) => {
@@ -61,7 +50,9 @@ async function run() {
 
     // Get all Classes
     app.get("/allClasses", async (req, res) => {
-      const result = await ClassCollection.find({}).toArray();
+      const result = await ClassCollection.find({})
+        .sort({ createdAt: -1 })
+        .toArray();
       res.json(result);
     });
 
