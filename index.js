@@ -47,6 +47,11 @@ async function run() {
       const result = await UsersData.find({}).toArray();
       res.json(result);
     });
+    // Get Instructor
+    app.get("/instructor", async (req, res) => {
+      const result = await UsersData.find({ role: "Instructor" }).toArray();
+      res.json(result);
+    });
 
     // Get all Classes
     app.get("/allClasses", async (req, res) => {
