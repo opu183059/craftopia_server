@@ -38,7 +38,6 @@ async function run() {
         $set: user,
       };
       const result = await UsersData.updateOne(query, updateDoc, options);
-      // console.log(result)
       res.send(result);
     });
 
@@ -47,6 +46,7 @@ async function run() {
       const result = await UsersData.find({}).toArray();
       res.json(result);
     });
+
     // Get Instructor
     app.get("/instructor", async (req, res) => {
       const result = await UsersData.find({ role: "Instructor" }).toArray();
@@ -118,6 +118,35 @@ async function run() {
         .toArray();
       res.json(result);
     });
+
+    // get class data by id
+    app.get("/classSearch/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await ClassCollection.findOne(query);
+      res.json(result);
+    });
+
+    // get classdata and update data
+    app.put("/classUpdate/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const option = { upsert: true };
+      const updatedClass = req.body;
+      const updtdClass = {
+        $set: {
+          classname: updatedClass.classname,
+          instructorName: updatedClass.instructorName,
+          instructoremail: updatedClass.instructoremail,
+          description: updatedClass.description,
+          price: updatedClass.price,
+          available: updatedClass.available,
+        },
+      };
+      const result = await ClassCollection.updateOne(query, updtdClass, option);
+      res.json(result);
+    });
+
     // get selected class data my email
     app.get("/selectedClasses/:email", async (req, res) => {
       const result = await ClassBooking.find({
