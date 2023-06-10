@@ -85,7 +85,6 @@ async function run() {
 
     // Find single user
     app.get("/usermail/:email", async (req, res) => {
-      // console.log(req.params.id);
       const email = req.params.email;
       const query = { email: email };
       const result = await UsersData.findOne(query);
@@ -100,6 +99,7 @@ async function run() {
       console.log(result);
       res.json(result);
     });
+
     // Select a class
     app.post("/sellectClass", async (req, res) => {
       const body = req.body;
@@ -113,6 +113,15 @@ async function run() {
     app.get("/myClass/:email", async (req, res) => {
       const result = await ClassCollection.find({
         instructoremail: req.params.email,
+      })
+        .sort({ createdAt: -1 })
+        .toArray();
+      res.json(result);
+    });
+    // get selected class data my email
+    app.get("/selectedClasses/:email", async (req, res) => {
+      const result = await ClassBooking.find({
+        studentEmail: req.params.email,
       })
         .sort({ createdAt: -1 })
         .toArray();
