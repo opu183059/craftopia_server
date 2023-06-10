@@ -100,6 +100,14 @@ async function run() {
       console.log(result);
       res.json(result);
     });
+    // Select a class
+    app.post("/sellectClass", async (req, res) => {
+      const body = req.body;
+      body.createdAt = new Date();
+      const result = await ClassBooking.insertOne(body);
+      console.log(result);
+      res.json(result);
+    });
 
     // get instructors data my email
     app.get("/myClass/:email", async (req, res) => {
