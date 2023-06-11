@@ -53,9 +53,18 @@ async function run() {
       res.json(result);
     });
 
-    // Get all Classes
+    // Get all Classes for ADMIN
     app.get("/allClasses", async (req, res) => {
       const result = await ClassCollection.find({})
+        .sort({ createdAt: -1 })
+        .toArray();
+      res.json(result);
+    });
+
+    // get approved classes
+    app.get("/allApprovedClasses", async (req, res) => {
+      const query = { status: "Approved" };
+      const result = await ClassCollection.find(query)
         .sort({ createdAt: -1 })
         .toArray();
       res.json(result);
