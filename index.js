@@ -173,6 +173,13 @@ async function run() {
       const result = await ClassCollection.deleteOne(query);
       res.json(result);
     });
+    // Delete sellected classes
+    app.delete("/selectedClassesDelete/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await ClassBooking.deleteOne(query);
+      res.json(result);
+    });
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
