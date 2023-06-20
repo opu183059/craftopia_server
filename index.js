@@ -1,5 +1,6 @@
 const express = require("express");
 const cors = require("cors");
+const jwt = require("jsonwebtoken");
 require("dotenv").config();
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const app = express();
@@ -18,15 +19,48 @@ const client = new MongoClient(uri, {
     deprecationErrors: true,
   },
 });
+// verify jwt token
+const verifyJWT = (req, res, next) => {
+  const authorization = req.headers.authorization;
+  if (!authorization) {
+    return res
+      .status(401)
+      .send({ error: true, message: "unauthorised Access" });
+  }
+  // console.log(authorization);
+
+  const token = authorization.split(" ")[1];
+  jwt.verify(token, process.env.Token_Secret, (err, decoded) => {
+    if (err) {
+      return res
+        .status(401)
+        .send({ error: true, message: "unauthorised Access" });
+    }
+    req.decoded = decoded;
+    next();
+  });
+  // console.log(token);
+};
 
 async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
-    await client.connect();
+    // await client.connect();
 
     const UsersData = client.db("criftopia").collection("users");
     const ClassCollection = client.db("criftopia").collection("class");
     const ClassBooking = client.db("criftopia").collection("bookings");
+
+    // generate token
+    // require('crypto').randomBytes(64).toString('hex')
+    app.post("/jwt", async (req, res) => {
+      const email = req.body;
+      const token = jwt.sign(email, process.env.Token_Secret, {
+        expiresIn: "1h",
+      });
+      // console.log(token);
+      res.json({ token });
+    });
 
     // get user and update
     app.put("/users/:email", async (req, res) => {
@@ -38,7 +72,7 @@ async function run() {
         $set: user,
       };
       const result = await UsersData.updateOne(query, updateDoc, options);
-      res.send(result);
+      res.json(result);
     });
 
     // Get all user
@@ -81,7 +115,7 @@ async function run() {
         $set: user,
       };
       const result = await ClassCollection.updateOne(query, updateDoc, options);
-      res.send(result);
+      res.json(result);
     });
 
     // Delete user
@@ -119,7 +153,18 @@ async function run() {
     });
 
     // get instructors data my email
-    app.get("/myClass/:email", async (req, res) => {
+    app.get("/myClass/:email", verifyJWT, async (req, res) => {
+      const decodedEmail = req.decoded.email;
+      // console.log(decodedEmail);
+      const email = req.params.email;
+      // console.log(email);
+
+      if (email != decodedEmail) {
+        return res
+          .status(403)
+          .send({ error: true, message: "Forbidden Access" });
+      }
+
       const result = await ClassCollection.find({
         instructoremail: req.params.email,
       })
@@ -157,7 +202,18 @@ async function run() {
     });
 
     // get selected class data my email
-    app.get("/selectedClasses/:email", async (req, res) => {
+    app.get("/selectedClasses/:email", verifyJWT, async (req, res) => {
+      const decodedEmail = req.decoded.email;
+      // console.log(decodedEmail);
+      const email = req.params.email;
+      // console.log(email);
+
+      if (email != decodedEmail) {
+        return res
+          .status(403)
+          .send({ error: true, message: "Forbidden Access" });
+      }
+
       const result = await ClassBooking.find({
         studentEmail: req.params.email,
       })
@@ -167,19 +223,22 @@ async function run() {
     });
 
     // class delete
-    app.delete("/classDelete/:id", async (req, res) => {
+    app.delete("/myClass/classDelete/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
       const result = await ClassCollection.deleteOne(query);
       res.json(result);
     });
     // Delete sellected classes
-    app.delete("/selectedClassesDelete/:id", async (req, res) => {
-      const id = req.params.id;
-      const query = { _id: new ObjectId(id) };
-      const result = await ClassBooking.deleteOne(query);
-      res.json(result);
-    });
+    app.delete(
+      "/selectedClasses/selectedClassesDelete/:id",
+      async (req, res) => {
+        const id = req.params.id;
+        const query = { _id: new ObjectId(id) };
+        const result = await ClassBooking.deleteOne(query);
+        res.json(result);
+      }
+    );
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
